@@ -5,6 +5,7 @@ const chalk = require("chalk"); // Module to add colors to console output
 const systemScanLogs = require("./systemScanLogs.js"); // Logs to be displayed during the system scan
 const bruteForceChallenges = require("./bruteForceChallenges.js"); // Challenges to be solved during brute force attack
 const passwordList = require("./passwordList.js"); // List of passwords to be used during brute force attack
+const firewallDecryptionKeys = require("./firewallDecryptionKeys.js"); // Decryption puzzles for level 2
 
 // Constants for different delays in the game
 const LOGIN_DELAY = 1000; // Delay between login actions in milliseconds
@@ -268,10 +269,156 @@ function finalizeBruteForce(actualPassword) {
   }, LOGIN_DELAY);
 }
 
-// Placeholder function for Level Two of the game
+// Function for Level Two of the game
 function levelTwo() {
-  console.log(chalk.blue("Level Two coming soon..."));
-  // Implement Level Two logic here...
+  console.log(chalk.blue("Level Two starting..."));
+
+  const lvlTwoIntroMsgs = [
+    "> Nice work on cracking that password, Cipher. But don’t get too comfortable.",
+    "> You’ve made it into the database, but there’s a second line of defense—a firewall separating you from their core data.",
+    "> This firewall is custom-built. It’s not going to roll over easily, so you’ll need to do more than just brute force your way through.",
+    "> First, we need to analyze the firewall rules and find an opening. We’ll need to manipulate IP addresses and spoof legitimate credentials.",
+    "> Type 'view_firewall_rules' to analyze the firewall.\n",
+  ];
+
+  showDialogue(lvlTwoIntroMsgs, DIALOGUE_DELAY, () => {
+    startFirewallAnalysis();
+  });
+}
+
+// Function to start the firewall analysis
+function startFirewallAnalysis() {
+  let input = readline.question(
+    chalk.yellow("> Type 'view_firewall_rules' to analyze the firewall...\n") +
+      CLI_PROMPT
+  );
+  while (input.trim() !== "view_firewall_rules") {
+    input = readline.question(
+      chalk.red(
+        "> Invalid command. Please type 'view_firewall_rules' to proceed.\n"
+      ) + CLI_PROMPT
+    );
+  }
+  console.clear();
+  console.log(
+    chalk.blueBright("Firewall Rules Loaded... VenturoFirewall v.4.2")
+  );
+  const firewallRules = [
+    "Rule 1: Block all incoming traffic except from internal IPs (192.168.x.x).",
+    "Rule 2: Allow traffic only from trusted devices.",
+    "Rule 3: Block repeated requests from a single IP address.",
+    "Rule 4: Log all unauthorized access attempts.",
+  ];
+  firewallRules.forEach((rule) => {
+    console.log(chalk.green(rule)); // Display each firewall rule
+  });
+  setTimeout(() => {
+    console.clear();
+    startDecryptionPuzzles();
+  }, LOGIN_DELAY);
+}
+
+// Function to start decryption puzzles
+function startDecryptionPuzzles() {
+  console.log(
+    chalk.yellow("The firewall is a bit more sophisticated than we thought.")
+  );
+  console.log(
+    chalk.yellow(
+      "It has encrypted security keys that authenticate internal devices. We need to decrypt these keys to spoof our IP."
+    )
+  );
+  console.log(
+    chalk.yellow(
+      "Type 'solve_decryption_keys' to begin the decryption process.\n"
+    )
+  );
+
+  let input = readline.question(CLI_PROMPT);
+  while (input.trim() !== "solve_decryption_keys") {
+    input = readline.question(
+      chalk.red(
+        "> Invalid command. Please type 'solve_decryption_keys' to proceed.\n"
+      ) + CLI_PROMPT
+    );
+  }
+  console.clear();
+  runDecryptionPuzzles();
+}
+
+// Function to run decryption puzzles
+function runDecryptionPuzzles() {
+  const fixedPuzzles = firewallDecryptionKeys.slice(0, 5); // First 5 fixed puzzles
+  const randomPuzzles = shuffle(firewallDecryptionKeys.slice(5)).slice(0, 5); // Randomly select 5 more puzzles
+  const puzzles = [...fixedPuzzles, ...randomPuzzles];
+
+  let puzzleIndex = 0;
+
+  function solveNextPuzzle() {
+    if (puzzleIndex < puzzles.length) {
+      const puzzle = puzzles[puzzleIndex];
+      console.log(
+        chalk.yellow(
+          `\n[Log] Decrypting Security Key: '${puzzle.scrambledWord}'`
+        )
+      );
+      puzzle.options.forEach((option, index) => {
+        console.log(chalk.yellow(`${index + 1}. ${option}`));
+      });
+
+      let answer = readline.question(CLI_PROMPT);
+      while (
+        !["1", "2", "3"].includes(answer.trim()) ||
+        puzzle.options[parseInt(answer.trim()) - 1] !== puzzle.answer
+      ) {
+        console.log(chalk.red("Incorrect. Try again."));
+        answer = readline.question(CLI_PROMPT);
+      }
+
+      console.log(chalk.green("Decryption successful."));
+      puzzleIndex++;
+      setTimeout(solveNextPuzzle, DIALOGUE_DELAY);
+    } else {
+      finalizeLevelTwo();
+    }
+  }
+
+  solveNextPuzzle();
+}
+
+// Function to finalize Level Two
+function finalizeLevelTwo() {
+  console.log(
+    chalk.green(
+      "\n[Log] Decrypted enough keys. Firewall is letting us through."
+    )
+  );
+  console.log(
+    chalk.green(
+      "[Log] Spoofing IP address complete. Access granted to VenturoCorp's internal network."
+    )
+  );
+  console.log(
+    chalk.yellow(
+      "\nType 'access_internal_network' to proceed to the next level.\n"
+    )
+  );
+
+  let input = readline.question(CLI_PROMPT);
+  while (input.trim() !== "access_internal_network") {
+    input = readline.question(
+      chalk.red(
+        "> Invalid command. Please type 'access_internal_network' to proceed.\n"
+      ) + CLI_PROMPT
+    );
+  }
+  console.clear();
+  console.log(chalk.green("Accessing internal network..."));
+  progress.level2 = true; // Mark level two as complete
+  setTimeout(() => {
+    console.log(chalk.blue("Level Three coming soon..."));
+    // Placeholder for level three logic
+  }, LOGIN_DELAY);
 }
 
 // Start the login simulation to begin the game
