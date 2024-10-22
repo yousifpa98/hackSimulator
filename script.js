@@ -1,18 +1,21 @@
 // Required dependencies
-const readline = require("readline-sync");
-const clear = require("clear");
-const chalk = require("chalk");
-const systemScanLogs = require("./systemScanLogs.js");
-const bruteForceChallenges = require("./bruteForceChallenges.js");
-const passwordList = require("./passwordList.js");
+const readline = require("readline-sync"); // Module to read user input from the console
+const clear = require("clear"); // Module to clear the console screen
+const chalk = require("chalk"); // Module to add colors to console output
+const systemScanLogs = require("./systemScanLogs.js"); // Logs to be displayed during the system scan
+const bruteForceChallenges = require("./bruteForceChallenges.js"); // Challenges to be solved during brute force attack
+const passwordList = require("./passwordList.js"); // List of passwords to be used during brute force attack
 
-const LOGIN_DELAY = 1000;
-const CLI_PROMPT = chalk.cyan("[kali@VenturoCorp]$ ");
-const LOG_MESSAGE_DELAY = 200;
-const DIALOGUE_DELAY = 2000;
-const CHALLENGE_LOG_INTERVAL = 17;
-const PASSWORD_LOG_DELAY = 150;
+// Constants for different delays in the game
+const LOGIN_DELAY = 1000; // Delay between login actions in milliseconds
+const LOG_MESSAGE_DELAY = 200; // Delay between displaying log messages in milliseconds
+const DIALOGUE_DELAY = 2000; // Delay between displaying dialogue messages in milliseconds
+const CHALLENGE_LOG_INTERVAL = 17; // Number of logs to show during a challenge
+const PASSWORD_LOG_DELAY = 100; // Delay between testing passwords during brute force attack
 
+const CLI_PROMPT = chalk.cyan("[kali@VenturoCorp]$ "); // The prompt symbol used for user commands
+
+// Object to track the progress of each level in the game
 const progress = {
   ...Object.fromEntries(
     Array.from({ length: 5 }, (_, i) => [`level${i + 1}`, false])
@@ -24,11 +27,13 @@ const progress = {
   },
 };
 
+// Clear the console at the start of the game
 clear();
 
+// Display the title of the game
 console.log(chalk.red.bold("=== Hack Simulator ==="));
 
-// Predefined log messages
+// Predefined log messages that will be shown during login
 const logMessages = [
   "Initializing secure connection...",
   "Establishing encrypted tunnel...",
@@ -42,33 +47,33 @@ const logMessages = [
   "Access granted.",
 ];
 
-// Function to simulate typing after a static prompt
+// Function to simulate typing after a prompt symbol, character by character
 function typeAfterPrompt(prompt, text, callback) {
-  process.stdout.write(prompt);
+  process.stdout.write(prompt); // Display the initial prompt (e.g., "username: ")
   let index = 0;
   const typingInterval = setInterval(() => {
     if (index < text.length) {
-      process.stdout.write(text[index]);
+      process.stdout.write(text[index]); // Display each character of the text one by one
       index++;
     } else {
-      clearInterval(typingInterval);
-      console.log();
-      callback();
+      clearInterval(typingInterval); // Stop typing when all characters are displayed
+      console.log(); // Add a new line after typing is complete
+      callback(); // Call the callback function to continue the flow
     }
-  }, 100);
+  }, 100); // Delay between each character typed
 }
 
-// Function to simulate shuffled logs appearing one by one
+// Function to display logs in a shuffled order, one by one
 function displayShuffledLogs(logs, callback) {
-  const shuffledLogs = shuffle([...logs]);
-  displayLogs(shuffledLogs, callback);
+  const shuffledLogs = shuffle([...logs]); // Shuffle the log messages
+  displayLogs(shuffledLogs, callback); // Display the shuffled log messages
 }
 
-// Shuffle function for logs
+// Function to shuffle the order of items in an array
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
+    [array[i], array[j]] = [array[j], array[i]]; // Swap elements randomly
   }
   return array;
 }
@@ -82,7 +87,7 @@ function simulateLogin() {
         displayShuffledLogs(logMessages, () => {
           setTimeout(() => {
             console.clear();
-            startGame();
+            startGame(); // Start the game after successful login
           }, LOGIN_DELAY);
         });
       }, LOGIN_DELAY);
@@ -90,40 +95,40 @@ function simulateLogin() {
   });
 }
 
-// Function to display logs without shuffling
+// Function to display logs without shuffling, one by one
 function displayLogs(logs, callback) {
   let logIndex = 0;
   const logInterval = setInterval(() => {
     if (logIndex < logs.length) {
-      console.log(chalk.green(logs[logIndex]));
+      console.log(chalk.green(logs[logIndex])); // Display each log message
       logIndex++;
     } else {
-      clearInterval(logInterval);
-      callback();
+      clearInterval(logInterval); // Stop displaying logs when finished
+      callback(); // Call the callback function to continue
     }
-  }, LOG_MESSAGE_DELAY);
+  }, LOG_MESSAGE_DELAY); // Delay between each log message
 }
 
-// Function to display dialogue with a delay between messages
+// Function to display dialogue messages with a delay between each message
 function showDialogue(messages, delayBetween, callback) {
   let currentDelay = 0;
   messages.forEach((message, index) => {
     setTimeout(() => {
-      console.log(chalk.yellow(message));
+      console.log(chalk.yellow(message)); // Display each dialogue message in yellow
       if (index === messages.length - 1 && callback) {
-        setTimeout(callback, delayBetween);
+        setTimeout(callback, delayBetween); // Call the callback function after the last message
       }
     }, currentDelay);
-    currentDelay += delayBetween;
+    currentDelay += delayBetween; // Increase the delay for each message
   });
 }
 
-// Function to dynamically adjust delays
+// Function to dynamically adjust delays based on the number of steps
 function dynamicDelay(baseDelay, numSteps) {
-  return Math.max(100, baseDelay / numSteps);
+  return Math.max(100, baseDelay / numSteps); // Ensure a minimum delay of 100ms
 }
 
-// Function to start the game
+// Function to start the main game sequence
 function startGame() {
   console.log(chalk.bold("Welcome to the Hack Simulator."));
 
@@ -135,19 +140,21 @@ function startGame() {
   ];
 
   showDialogue(introMessages, DIALOGUE_DELAY, () => {
-    startVulnerabilityAssessment();
+    startVulnerabilityAssessment(); // Start vulnerability assessment after introduction
   });
 }
 
-// Function to start vulnerability assessment
+// Function to start vulnerability assessment in the game
 function startVulnerabilityAssessment() {
   let input = readline.question(
-    chalk.yellow("> Type 'scan_network' to begin vulnerability assessment...\n") +
-      CLI_PROMPT
+    chalk.yellow(
+      "> Type 'scan_network' to begin vulnerability assessment...\n"
+    ) + CLI_PROMPT
   );
   while (input.trim() !== "scan_network") {
     input = readline.question(
-      chalk.red("> Invalid command. Please type 'scan_network' to begin.\n") + CLI_PROMPT
+      chalk.red("> Invalid command. Please type 'scan_network' to begin.\n") +
+        CLI_PROMPT
     );
   }
   console.clear();
@@ -155,12 +162,12 @@ function startVulnerabilityAssessment() {
   displayLogs(systemScanLogs, () => {
     setTimeout(() => {
       console.clear();
-      levelOne();
+      levelOne(); // Start level one after vulnerability assessment
     }, LOGIN_DELAY);
   });
 }
 
-// Function for level one
+// Function for Level One of the game
 function levelOne() {
   const lvlOneIntroMsgs = [
     "> System ready for next steps.",
@@ -172,7 +179,8 @@ function levelOne() {
   showDialogue(lvlOneIntroMsgs, DIALOGUE_DELAY, () => {
     setTimeout(() => {
       let input = readline.question(
-        chalk.yellow("> Type 'brute_force' to begin the attack...\n") + CLI_PROMPT
+        chalk.yellow("> Type 'brute_force' to begin the attack...\n") +
+          CLI_PROMPT
       );
       while (input.trim() !== "brute_force") {
         input = readline.question(
@@ -183,33 +191,38 @@ function levelOne() {
       }
       console.clear();
       console.log(chalk.blueBright("Brute force attack starting..."));
-      runBruteForce(passwordList.slice(-10), passwordList[Math.floor(Math.random() * 10)]);
+      runBruteForce(
+        passwordList.slice(-10), // Select the last 10 passwords from the list
+        passwordList[Math.floor(Math.random() * 10)] // Pick a random password to be the correct one
+      );
     }, dynamicDelay(DIALOGUE_DELAY, lvlOneIntroMsgs.length));
   });
 }
 
-// Function to run brute force
+// Function to run brute force attack
 function runBruteForce(passwords, actualPassword) {
   let attemptCounter = 0;
   const challenges = shuffle([...bruteForceChallenges]).slice(0, 5); // Select 5 random challenges
 
   function bruteForceAttempt() {
     if (attemptCounter < 5) {
-      console.log(chalk.blue(`Testing password: ${passwords[attemptCounter]}...`));
+      console.log(
+        chalk.blue(`Testing password: ${passwords[attemptCounter]}...`)
+      );
       console.log(chalk.red("Password failed..."));
       attemptCounter++;
-      setTimeout(bruteForceAttempt, PASSWORD_LOG_DELAY);
+      setTimeout(bruteForceAttempt, PASSWORD_LOG_DELAY); // Attempt the next password
     } else if (challenges.length > 0) {
-      handleChallenge(challenges, bruteForceAttempt, passwords);
+      handleChallenge(challenges, bruteForceAttempt, passwords); // If attempts fail, handle a challenge
     } else {
-      finalizeBruteForce(actualPassword);
+      finalizeBruteForce(actualPassword); // Finalize if all attempts and challenges are done
     }
   }
 
-  bruteForceAttempt();
+  bruteForceAttempt(); // Start the brute force attempts
 }
 
-// Function to handle challenges during brute force
+// Function to handle challenges during brute force attack
 function handleChallenge(challenges, callback, passwords) {
   const challengeIndex = Math.floor(Math.random() * challenges.length);
   const challenge = challenges.splice(challengeIndex, 1)[0];
@@ -219,41 +232,47 @@ function handleChallenge(challenges, callback, passwords) {
 
   let input = readline.question(chalk.yellow("Fix the code: \n") + CLI_PROMPT);
   if (input.trim() === challenge.answer.trim()) {
-    console.log(chalk.green("Challenge completed!"));
+    console.log(chalk.green("Challenge completed!")); // Correct answer
   } else {
-    console.log(chalk.red("Incorrect. Try again."));
-    challenges.push(challenge);
+    console.log(chalk.red("Incorrect. Try again.")); // Incorrect answer, challenge remains
+    challenges.push(challenge); // Add the challenge back to the list to retry later
   }
 
   setTimeout(() => {
     let logIndex = 0;
     const logInterval = setInterval(() => {
       if (logIndex < CHALLENGE_LOG_INTERVAL) {
-        console.log(chalk.blue(`Testing password: ${passwords[logIndex % passwords.length]}...`));
+        console.log(
+          chalk.blue(
+            `Testing password: ${passwords[logIndex % passwords.length]}...`
+          )
+        );
         console.log(chalk.red("Password failed..."));
         logIndex++;
       } else {
         clearInterval(logInterval);
-        callback();
+        callback(); // Continue after challenge
       }
     }, PASSWORD_LOG_DELAY);
   }, PASSWORD_LOG_DELAY);
 }
 
-// Function to finalize brute force
+// Function to finalize the brute force attack
 function finalizeBruteForce(actualPassword) {
-  console.log(chalk.green(`Password cracked: ${actualPassword}`));
+  console.log(chalk.green(`Password cracked: ${actualPassword}`)); // Correct password found
+  progress.level1 = true; // Mark level one as complete
   setTimeout(() => {
     console.clear();
     console.log(chalk.green("Access granted."));
-    levelTwo();
+    levelTwo(); // Proceed to level two
   }, LOGIN_DELAY);
 }
 
-// Function for Level Two
+// Placeholder function for Level Two of the game
 function levelTwo() {
   console.log(chalk.blue("Level Two coming soon..."));
   // Implement Level Two logic here...
 }
 
+// Start the login simulation to begin the game
 simulateLogin();
