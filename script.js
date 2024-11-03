@@ -416,10 +416,62 @@ function finalizeLevelTwo() {
   console.log(chalk.green("Accessing internal network..."));
   progress.level2 = true; // Mark level two as complete
   setTimeout(() => {
-    console.log(chalk.blue("Level Three coming soon..."));
-    // Placeholder for level three logic
+    handleGameEnding();
   }, LOGIN_DELAY);
+}
+
+// Function to handle the end game sequence
+function handleGameEnding() {
+  console.clear();
+  console.log(chalk.red.bold("=== Level 4: Final Breach ==="));
+  console.log(chalk.yellow("You’ve reached the core of VenturoCorp’s system."));
+  console.log(chalk.yellow("The final commands must be executed with precision to fully compromise the network.\n"));
+
+  const finalCommands = [
+    { command: "cd final_layer", hint: "Accessing final layer...", color: chalk.cyan },
+    { command: "run secure_breach_protocol", hint: "Initiating breach protocol...", color: chalk.magenta },
+    { command: 'echo "system compromised" > flag.txt', hint: "Writing to flag file...", color: chalk.green },
+  ];
+  
+  let commandIndex = 0;
+
+  function executeCommand() {
+    if (commandIndex < finalCommands.length) {
+      const currentCommand = finalCommands[commandIndex];
+      let input = readline.question(`${CLI_PROMPT}`);
+
+      while (input.trim() !== currentCommand.command) {
+        console.log(chalk.red("> Invalid command. Please try again.\n"));
+        input = readline.question(CLI_PROMPT);
+      }
+
+      console.clear();
+      console.log(currentCommand.color(currentCommand.hint));
+      commandIndex++;
+      setTimeout(executeCommand, DIALOGUE_DELAY);
+    } else {
+      endGame();
+    }
+  }
+
+  executeCommand();
+}
+
+// Function to clear the screen and display ending credits
+function endGame() {
+  console.clear();
+  console.log(chalk.red.bold("=== System Breached Successfully! ==="));
+  console.log(chalk.green("Congratulations, you have completed Hack Simulator."));
+  console.log(chalk.yellow("\n>> Finalizing secure breach..."));
+  setTimeout(() => {
+    console.clear();
+    console.log(chalk.cyan.bold("\n== Credits =="));
+    console.log(chalk.cyan("Developed by: Yousif Paulus"));
+    console.log(chalk.cyan("VenturoCorp Systems Compromised"));
+    process.exit();
+  }, LOGIN_DELAY * 2);
 }
 
 // Start the login simulation to begin the game
 simulateLogin();
+
